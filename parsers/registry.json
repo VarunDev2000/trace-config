@@ -1,0 +1,13 @@
+{
+  "version": 1,
+
+  "providers": {
+
+    "email": {
+
+      "amazon": {
+        "activeVersion": "1.0.0"
+      }
+    }
+  }
+}

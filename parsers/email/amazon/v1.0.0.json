@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "provider": "amazon",
+  "senders": [
+    "auto-confirm@amazon.in",
+    "shipment-tracking@amazon.in",
+    "order-update@amazon.in"
+  ],
+  "currency": "INR",
+
+  "statusRules": [
+    { "target": "plainText", "pattern": "Thanks for your order", "flags": "i", "status": "ordered" },
+    { "target": "plainText", "pattern": "was shipped",            "flags": "i", "status": "shipped" },
+    { "target": "plainText", "pattern": "out for delivery",       "flags": "i", "status": "out_for_delivery" },
+    { "target": "plainText", "pattern": "was delivered",          "flags": "i", "status": "delivered" },
+    { "target": "plainText", "pattern": "Amazon\\.in Order Cancelled", "flags": "i", "status": "cancelled" },
+    { "target": "subject",   "pattern": "has been cancelled",     "flags": "i", "status": "cancelled" }
+  ],
+  "defaultStatus": "unknown",
+
+  "blockSplitter": {
+    "pattern": "Order\\s*#\\s*\\n?([\\d-]{19})\\s*\\n([\\s\\S]*?)(?=Order\\s*#\\s*\\n?[\\d-]{19}|©|©|$)",
+    "flags": "g",
+    "externalIdGroup": 1,
+    "blockContentGroup": 2,
+    "fallbackPattern": "Order\\s*#([\\d-]{19})",
+    "fallbackGroup": 1
+  },
+
+  "blockFields": {
+    "itemName": {
+      "pattern": "^\\* (.+)",
+      "flags": "m",
+      "group": 1,
+      "maxLength": 120
+    },
+    "price": {
+      "strategies": [
+        {
+          "pattern": "Total[^\\n]*\\n\\s*([\\d,]+(?:\\.\\d+)?)\\s+INR",
+          "group": 1
+        },
+        {
+          "pattern": "^\\s+([\\d,]+(?:\\.\\d+)?)\\s+INR",
+          "flags": "m",
+          "group": 1
+        }
+      ]
+    }
+  },
+
+  "otpExtraction": {
+    "subjectPattern": "one-time password",
+    "subjectFlags": "i",
+    "pattern": "Your one-time password is <b>(\\d{4,8})<\\/b>",
+    "flags": "i",
+    "group": 1
+  },
+
+  "shippingAddressExtraction": {
+    "forStatus": ["ordered"],
+    "pattern": "^(.+\\s*[–—-]\\s*[A-Za-z][A-Za-z ,]+)\\s*\\n(?:\\s*\\n)*Order\\s*#",
+    "flags": "m",
+    "group": 1
+  },
+
+  "imageExtraction": {
+    "pattern": "class=\"productImage\"[^>]*src=\"(https:\\/\\/m\\.media-amazon\\.com\\/images\\/I\\/[^\"]+)\"",
+    "flags": "g",
+    "group": 1
+  },
+
+  "itemLinePattern": "^\\* (.+)",
+  "itemLineFlags": "gm",
+
+  "itemExtraction": {
+    "forStatus": ["ordered"],
+    "config": {
+      "splitPattern": "\\n\\* ",
+      "namePattern": "^(.*?)(?=\\n\\s*Quantity:)",
+      "nameFlags": "s",
+      "quantityPattern": "Quantity:\\s*(\\d+)",
+      "quantityFlags": "i",
+      "pricePattern": "([\\d,]+(?:\\.\\d+)?)\\s+INR",
+      "priceFlags": "i",
+      "maxNameLength": 120
+    }
+  }
+}
