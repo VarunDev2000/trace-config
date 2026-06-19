@@ -1,20 +1,31 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "provider": "amazon",
-  "senders": [
-    "auto-confirm@amazon.in",
-    "shipment-tracking@amazon.in",
-    "order-update@amazon.in"
-  ],
+  "senders": ["auto-confirm@amazon.in", "shipment-tracking@amazon.in", "order-update@amazon.in"],
   "currency": "INR",
 
   "statusRules": [
-    { "target": "plainText", "pattern": "Thanks for your order", "flags": "i", "status": "ordered" },
-    { "target": "plainText", "pattern": "was shipped",            "flags": "i", "status": "shipped" },
-    { "target": "plainText", "pattern": "out for delivery",       "flags": "i", "status": "out_for_delivery" },
-    { "target": "plainText", "pattern": "was delivered",          "flags": "i", "status": "delivered" },
-    { "target": "plainText", "pattern": "Amazon\\.in Order Cancelled", "flags": "i", "status": "cancelled" },
-    { "target": "subject",   "pattern": "has been cancelled",     "flags": "i", "status": "cancelled" }
+    {
+      "target": "plainText",
+      "pattern": "Thanks for your order",
+      "flags": "i",
+      "status": "ordered"
+    },
+    { "target": "plainText", "pattern": "was shipped", "flags": "i", "status": "shipped" },
+    { "target": "plainText", "pattern": "was delivered", "flags": "i", "status": "delivered" },
+    {
+      "target": "plainText",
+      "pattern": "out for delivery",
+      "flags": "i",
+      "status": "out_for_delivery"
+    },
+    {
+      "target": "plainText",
+      "pattern": "Amazon\\.in Order Cancelled",
+      "flags": "i",
+      "status": "cancelled"
+    },
+    { "target": "subject", "pattern": "has been cancelled", "flags": "i", "status": "cancelled" }
   ],
   "defaultStatus": "unknown",
 
@@ -73,8 +84,19 @@
   "itemLinePattern": "^\\* (.+)",
   "itemLineFlags": "gm",
 
+  "deliveryExtraction": {
+    "forStatus": ["ordered", "shipped", "out_for_delivery"],
+    "datePattern": "(?:arriv|deliver|expect)\\w*[^\\n]*?\\b(today|tomorrow|(?:this\\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|\\d{1,2}\\s+(?:jan\\w*|feb\\w*|mar\\w*|apr\\w*|may|jun\\w*|jul\\w*|aug\\w*|sep\\w*|oct\\w*|nov\\w*|dec\\w*)(?:\\s+\\d{4})?|(?:jan\\w*|feb\\w*|mar\\w*|apr\\w*|may|jun\\w*|jul\\w*|aug\\w*|sep\\w*|oct\\w*|nov\\w*|dec\\w*)\\s+\\d{1,2}(?:,?\\s+\\d{4})?)",
+    "dateFlags": "i",
+    "dateGroup": 1,
+    "timePattern": "(?:[\\u2013\\u2014-]\\s*|by\\s+)(\\d{1,2}(?::\\d{2})?\\s*(?:AM|PM))",
+    "timeFlags": "i",
+    "timeGroup": 1,
+    "defaultTime": "23:59:59"
+  },
+
   "itemExtraction": {
-    "forStatus": ["ordered"],
+    "forStatus": ["ordered", "shipped"],
     "config": {
       "splitPattern": "\\n\\* ",
       "namePattern": "^(.*?)(?=\\n\\s*Quantity:)",
